@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>טלפרומפטר | קורס איפור מקצועי</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;900&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --pink:#FBCFE0;--pk-l:#FDF2F8;--pk-s:#FCE7F3;--pk-d:#EC4899;
+  --mint:#A8E6CF;--mt-l:#ECFDF5;--mt-s:#D1FAE5;--mt-d:#059669;
+  --gold:#D4A843;--gd-l:#FEF9E7;--gd-s:#FDE68A;--gd-d:#B8860B;
+  --dark:#3D2B1F;--txt:#4A3728;--mut:#8B7B6B;--bg:#FFFBF7;--card:#FFFFFF;
+  --hl:#FEF3C7;--hl-b:#F59E0B;--read-bg:#D1FAE5;--read-b:#059669;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--txt);}
+.app{display:flex;height:100vh;}
+
+/* Sidebar */
+.sb{width:310px;min-width:310px;height:100vh;background:var(--card);border-left:3px solid var(--pink);display:flex;flex-direction:column;overflow:hidden;transition:all 0.3s;}
+.sb.collapsed{width:0;min-width:0;border:none;overflow:hidden;}
+.sb-head{padding:20px 16px;border-bottom:2px solid var(--pk-s);background:var(--pk-l);text-align:center;flex-shrink:0;}
+.sb-head h2{font-family:'Frank Ruhl Libre',serif;color:var(--gd-d);font-size:1.2rem;}
+.sb-head .sub{color:var(--mut);font-size:0.78rem;margin-top:4px;}
+.sb-scroll{flex:1;overflow-y:auto;padding:10px 12px;}
+.mg{margin-bottom:6px;}
+.mb{width:100%;text-align:right;background:var(--pk-l);border:1.5px solid var(--pink);border-radius:10px;padding:11px 14px;cursor:pointer;font-weight:700;color:var(--dark);font-size:0.88rem;font-family:'Heebo',sans-serif;display:flex;align-items:center;gap:8px;transition:all 0.2s;}
+.mb:hover{background:var(--pk-s);}
+.mb.act{background:var(--gd-l);border-color:var(--gold);color:var(--gd-d);}
+.mb .arr{margin-right:auto;font-size:0.65rem;color:var(--mut);transition:transform 0.3s;}
+.mb.act .arr{transform:rotate(90deg);}
+.ll{display:none;padding:4px 0 4px 8px;}
+.ll.show{display:block;}
+.lb{display:block;width:100%;text-align:right;background:none;border:none;color:var(--mut);padding:9px 12px;font-size:0.83rem;cursor:pointer;border-radius:8px;font-family:'Heebo',sans-serif;border-right:3px solid transparent;transition:all 0.2s;}
+.lb:hover{color:var(--txt);background:var(--mt-l);border-right-color:var(--mint);}
+.lb.act{color:var(--gd-d);background:var(--gd-l);border-right-color:var(--gold);font-weight:600;}
+.sb-foot{padding:10px;border-top:2px solid var(--pk-s);background:var(--pk-l);text-align:center;flex-shrink:0;}
+.sb-foot .brand{color:var(--mut);font-size:0.7rem;}
+
+/* Main */
+.mn{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.top{background:var(--card);border-bottom:2px solid var(--pk-s);padding:10px 16px;display:flex;align-items:center;flex-shrink:0;gap:6px;}
+.tog{background:var(--pk-l);border:1.5px solid var(--pink);color:var(--gd-d);width:40px;height:40px;border-radius:10px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tog:hover{background:var(--pk-s);}
+.ttl{font-family:'Heebo',sans-serif;color:var(--gd-d);font-size:0.88rem;font-weight:400;white-space:nowrap;flex-shrink:0;}
+.ctrls{display:flex;align-items:center;flex:1;gap:0;justify-content:stretch;}
+.ctrls>*{flex:1;text-align:center;}
+.cb{background:var(--pk-l);border:1.5px solid var(--pink);color:var(--txt);padding:9px 0;border-radius:22px;font-family:'Heebo',sans-serif;font-size:0.85rem;cursor:pointer;font-weight:600;white-space:nowrap;transition:all 0.2s;margin:0 3px;}
+.cb:hover{background:var(--pk-s);}
+.cb.on{background:var(--gold);border-color:var(--gd-d);color:#fff;}
+.cb.rec{background:#fee2e2;border-color:#f87171;color:#dc2626;animation:recPulse 1.2s ease-in-out infinite;}
+@keyframes recPulse{0%,100%{opacity:1;}50%{opacity:0.7;}}
+.cg{display:flex;align-items:center;justify-content:center;gap:5px;color:var(--txt);font-size:0.85rem;background:var(--pk-l);padding:9px 0;border-radius:22px;border:1.5px solid var(--pink);white-space:nowrap;font-weight:500;margin:0 3px;}
+.cg span{font-size:0.85rem;}
+.cg input[type=range]{width:70px;accent-color:var(--gold);}
+.sz{background:var(--card);border:1.5px solid var(--pink);color:var(--txt);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.sz:hover{border-color:var(--gold);background:var(--gd-l);}
+
+/* Camera */
+.cam-wrap{position:relative;width:100%;max-height:0;overflow:hidden;transition:max-height 0.4s ease;background:#000;}
+.cam-wrap.open{max-height:300px;}
+.cam-vid{width:100%;height:200px;object-fit:cover;transform:scaleX(-1);}
+.cam-ctrls{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10;}
+.cam-btn{background:rgba(255,255,255,0.9);border:none;padding:6px 16px;border-radius:16px;font-family:'Heebo',sans-serif;font-size:0.8rem;cursor:pointer;font-weight:600;color:var(--txt);backdrop-filter:blur(4px);}
+.cam-btn:hover{background:#fff;}
+.cam-btn.recording{background:#fee2e2;color:#dc2626;}
+.cam-timer{position:absolute;top:8px;right:12px;background:rgba(220,38,38,0.9);color:#fff;padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:600;display:none;}
+.cam-timer.on{display:block;}
+
+/* Tabs */
+.tabs{display:flex;background:var(--card);border-bottom:2px solid var(--pk-s);flex-shrink:0;padding:0 20px;}
+.tab{padding:10px 22px;border-bottom:3px solid transparent;color:var(--mut);cursor:pointer;font-size:0.85rem;font-weight:500;transition:all 0.2s;}
+.tab:hover{color:var(--txt);}
+.tab.on{color:var(--gd-d);border-bottom-color:var(--gold);font-weight:700;}
+
+/* Panels */
+.panels{flex:1;overflow:hidden;position:relative;}
+.pnl{display:none;height:100%;overflow-y:auto;padding:28px 36px 100px;}
+.pnl.on{display:block;}
+
+/* Teleprompter text */
+.tp{font-family:'Frank Ruhl Libre','Heebo',serif;line-height:2.4;}
+.seg{margin-bottom:20px;padding:18px 22px;border-radius:14px;border:1.5px solid transparent;background:var(--card);box-shadow:0 1px 6px rgba(0,0,0,0.02);transition:all 0.3s;}
+.seg.hl{border-color:var(--gold);background:var(--gd-l);}
+.ts-line{color:var(--gd-d);font-weight:700;font-size:1em;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--gd-s);}
+.bc{color:var(--pk-d);font-size:0.8em;margin:6px 0;padding:5px 12px;background:var(--pk-l);border-radius:6px;border-right:3px solid var(--pink);display:inline-block;}
+.ic-cue{color:var(--mt-d);font-size:0.8em;margin:4px 0;padding:5px 12px;background:var(--mt-l);border-radius:6px;border-right:3px solid var(--mint);display:inline-block;}
+
+/* Sentence highlighting */
+.sent{
+  display:block;
+  padding:5px 4px;
+  margin-bottom:2px;
+  border-radius:5px;
+  cursor:pointer;
+  border-right:3px solid transparent;
+  transition:background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+.sent.current{
+  background:var(--hl);
+  border-right-color:var(--hl-b);
+}
+.sent.read{
+  background:var(--read-bg);
+  border-right-color:var(--read-b);
+  opacity:0.65;
+}
+.sent:hover{background:var(--pk-l);}
+/* Manual click override */
+.sent.manual-read{
+  background:var(--read-bg);
+  border-right-color:var(--read-b);
+  opacity:0.65;
+}
+
+.tip-bx{background:var(--gd-l);border-right:4px solid var(--gold);padding:10px 16px;border-radius:6px;margin-top:10px;color:var(--gd-d);font-size:0.88em;font-weight:500;}
+
+/* AI prompts */
+.ai-cd{background:var(--card);border:1.5px solid var(--mt-s);border-radius:12px;padding:18px 22px;margin-bottom:12px;}
+.ai-cd:hover{border-color:var(--mint);}
+.ai-cd .lbl{color:var(--gd-d);font-weight:700;font-size:0.9rem;margin-bottom:8px;}
+.pr{font-family:'Courier New',monospace;color:var(--mut);font-size:0.83rem;line-height:1.6;direction:ltr;text-align:left;background:var(--mt-l);padding:12px 16px;border-radius:8px;cursor:pointer;border:1.5px solid transparent;transition:all 0.2s;}
+.pr:hover{border-color:var(--mint);}
+.pr.copied{border-color:var(--gold);background:var(--gd-l);}
+.ch{font-size:0.7rem;margin-top:4px;color:var(--mt-d);}
+.ic-cd{background:var(--card);border:1.5px solid var(--pk-s);border-radius:12px;padding:14px 18px;margin-bottom:10px;}
+.ic-cd .il{color:var(--pk-d);font-weight:700;font-size:0.86rem;margin-bottom:6px;}
+.ic-pr{font-family:'Courier New',monospace;color:var(--mut);font-size:0.8rem;direction:ltr;text-align:left;background:var(--pk-l);padding:10px 14px;border-radius:8px;cursor:pointer;line-height:1.5;border:1.5px solid transparent;}
+.ic-pr:hover{border-color:var(--pink);}
+
+/* Welcome */
+.welc{text-align:center;padding:80px 20px;}
+.welc .emo{font-size:3rem;margin-bottom:16px;}
+.welc .wt{font-family:'Frank Ruhl Libre',serif;font-size:1.4rem;color:var(--gd-d);margin-bottom:8px;}
+.welc .wd{color:var(--mut);font-size:0.95rem;line-height:2;}
+
+/* Progress */
+.prog{position:absolute;bottom:0;left:0;right:0;height:4px;background:var(--pk-l);z-index:5;}
+.prog-f{height:100%;background:var(--gold);width:0;transition:width 0.3s;}
+.sctop{position:absolute;bottom:24px;left:24px;z-index:20;background:var(--gold);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:1.1rem;cursor:pointer;opacity:0;transition:all 0.3s;}
+.sctop.show{opacity:1;}
+
+@media(max-width:768px){
+  .sb,.sb.collapsed{position:fixed;left:0;right:0;top:0;bottom:0;width:100%!important;min-width:100%!important;z-index:100;display:none;border:none;transform:none;}
+  .sb.mob,.sb.mob.collapsed{display:flex!important;width:100%!important;min-width:100%!important;transform:none!important;}
+  .pnl{padding:16px 14px 80px;}
+  .top{padding:8px 10px;gap:4px;}
+  .ttl{font-size:0.78rem;}
+  .ctrls{flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;}
+  .ctrls>*{flex:none;}
+  .cb{padding:7px 12px;font-size:0.78rem;margin:0 2px;}
+  .cg{padding:5px 8px;font-size:0.78rem;margin:0 2px;}
+  .cg span{font-size:0.78rem;}
+  .cg input[type=range]{width:50px;}
+  .sz{width:24px;height:24px;font-size:0.78rem;}
+  .cam-vid{height:150px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sb collapsed" id="sb">
+    <div class="sb-head"><h2>💄 תפריט הקורס</h2><div class="sub">בחרי שיעור כדי להתחיל</div></div>
+    <div class="sb-scroll" id="sbC"></div>
+    <div class="sb-foot"><div class="brand">💋 טלפרומפטר | קורס איפור מקצועי</div></div>
+  </aside>
+
+  <div class="mn">
+    <div class="top">
+      <button class="tog" onclick="togSB()">☰</button>
+      <div class="ttl" id="ttl">בחרי שיעור כדי להתחיל</div>
+      <div class="ctrls">
+        <button class="cb" onclick="togPlay()" id="pb">▶ הפעלה</button>
+        <button class="cb" onclick="handleReset()">🔄 איפוס</button>
+        <button class="cb" onclick="togCam()" id="camBtn">📹 מצלמה</button>
+        <div class="cg"><span>מהירות</span><input type="range" min="0.1" max="10" value="1" step="0.1" id="spd" oninput="updSpd()"><span id="spdV">1</span></div>
+        <div class="cg"><span>גודל</span><button class="sz" onclick="chFnt(-2)">−</button><span id="fntV">26</span><button class="sz" onclick="chFnt(2)">+</button></div>
+      </div>
+    </div>
+
+    <div class="cam-wrap" id="camWrap">
+      <video class="cam-vid" id="camVid" autoplay muted playsinline></video>
+      <div class="cam-timer" id="camTimer">● 00:00</div>
+      <div class="cam-ctrls">
+        <button class="cam-btn" id="recBtn" onclick="togRec()">⏺ הקלטה</button>
+        <button class="cam-btn" onclick="stopCam()">✕ סגור</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab on" onclick="swTab(0)">📜 תסריט</div>
+      <div class="tab" onclick="swTab(1)">🎨 תמונות AI</div>
+      <div class="tab" onclick="swTab(2)">✨ אייקונים</div>
+    </div>
+
+    <div class="panels">
+      <div class="pnl on" id="pnl0">
+        <div class="tp" id="tp" style="font-size:26px">
+          <div class="welc"><div class="emo">💄</div><div class="wt">בחרי שיעור מהתפריט</div><div class="wd">כל משפט יתמרקר אוטומטית תוך כדי הגלילה<br>🟡 צהוב = בקריאה | 🟢 ירוק = נקרא</div></div>
+        </div>
+      </div>
+      <div class="pnl" id="pnl1"><div class="welc"><div class="emo">🎨</div><div class="wt">פרומפטים לתמונות AI</div><div class="wd">בחרי שיעור מהתפריט</div></div></div>
+      <div class="pnl" id="pnl2"><div class="welc"><div class="emo">✨</div><div class="wt">אייקונים קופצים</div><div class="wd">בחרי שיעור מהתפריט</div></div></div>
+      <div class="prog"><div class="prog-f" id="progF"></div></div>
+      <button class="sctop" id="scTop" onclick="scToTop()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA - קורס איפור מקצועי - 10 מודולים
+   ============================================================ */
+</script>
+<script id="dataScript">
+const D=[
+{m:"מבוא לקורס",icon:"👋",lessons:[
+{t:"מבוא: ברוכות הבאות לקורס איפור מקצועי",d:"4 דקות",segs:[
+{time:"0:00-0:45 – פתיחה",body:"חיוך חם, אנרגיה גבוהה",script:"היי! ברוכות הבאות לקורס איפור מקצועי. אם את כאן, סימן שאת רוצה ללמוד איך להתאפר כמו מקצוענית – בין אם ליומיום, לערב מיוחד, לחתונה או לאירוע. בקורס הזה אני הולכת ללמד אותך את כל מה שצריך לדעת, צעד אחר צעד, מהבסיס ועד לטכניקות המתקדמות ביותר.",ai:"A warm welcoming illustration of a professional makeup artist in a beautiful studio surrounded by brushes, palettes, and mirrors with golden lighting. Soft pink and cream decor, elegant vanity table with organized makeup products. Professional and inviting atmosphere, text overlay saying WELCOME in elegant gold script. 16:9 aspect ratio.",icons:[{d:"שפתון",p:"Lipstick emoji with golden sparkle, welcoming, transparent background."},{d:"מראה",p:"Elegant vanity mirror with lights, beauty studio icon, transparent background."}]},
+{time:"0:45-2:00 – מה תלמדי בקורס",body:"דברי בביטחון",script:"הקורס מחולק לעשרה מודולים מלאים. נתחיל מהכנת העור – הבסיס לכל איפור מוצלח. נלמד איפור יומיומי טבעי, איפור ערב דרמטי, איפור כלות מושלם, ואיפור מותאם לעור בוגר. נעבור על טכניקות עיניים, שפתיים, קונטור וסומק. נלמד איך לבחור צבעים נכון, איך להתאים איפור לאירוע, ובסוף – בונוס מיוחד של איפור לפורים שיפיל לכולן את הלסת.",ai:"A beautiful course roadmap infographic showing 10 numbered milestone icons arranged in a winding golden path. Each milestone has a small representative icon: skincare bottle, mascara wand, eyeshadow palette, lipstick, bridal veil, contour brush, color wheel, mirror, mature beauty icon, Purim mask. Pastel pink and cream color scheme with gold path. Professional beauty course overview, 16:9.",icons:[{d:"מפה",p:"Roadmap with golden beauty milestones, pastel colors, transparent background."}]},
+{time:"2:00-3:00 – למי מתאים הקורס",body:"דברי באמפתיה וחיוך",script:"הקורס מתאים לכל אישה שרוצה ללמוד להתאפר – גם אם מעולם לא נגעת במברשת איפור. מתאים גם למי שכבר יודעת אבל רוצה לשדרג. מתאים למי שרוצה להפוך את זה למקצוע ולאפר אחרות. הדבר היחיד שאת צריכה זה סקרנות ורצון ללמוד. אז בואי נתחיל!",ai:"A diverse group of illustrated women of different ages and skin tones, each holding a different makeup product: one with a mascara, one with a lipstick, one with a palette, one with a brush. All looking excited and confident. Soft pink and cream background, golden sparkle effects. Inclusive beauty celebration, 16:9.",tip:"כל מודול בנוי על הקודם. מומלץ לעבור על כל השיעורים לפי הסדר.",icons:[{d:"נשים",p:"Group of diverse women with makeup products, celebration, transparent background."},{d:"לב",p:"Pink heart with gold sparkle, beauty love, transparent background."}]},
+{time:"3:00-4:00 – מה תצטרכי",body:"הציגי מוצרים",script:"לפני שנתחיל, הנה הכלים הבסיסיים שכדאי שיהיו לך: ספוגית בלנדר, סט מברשות בסיסי, פריימר, בסיס איפור שמתאים לגוון שלך, קונסילר, פודרה, פלטת צלליות ניטרלית, מסקרה, עיפרון גבות, סומק, שפתון, ותרסיס קיבוע. אל תלחצי – לא חייבים את הכל מההתחלה. נתחיל עם מה שיש ונשדרג בהדרגה.",ai:"A beautiful flat lay photograph of essential makeup products arranged elegantly on a marble surface. Products include: beauty blender, brush set, primer, foundation, concealer, powder, neutral eyeshadow palette, mascara, brow pencil, blush, lipstick, and setting spray. Soft natural lighting, organized and aesthetic. Professional product photography, pastel pink accents, 16:9.",icons:[{d:"כלים",p:"Makeup tools arranged neatly, brush palette sponge, pastel flat lay, transparent background."}]}
+]}
+]},
+
+{m:"מודול 1: הכנת העור – הבסיס לאיפור מושלם",icon:"✨",lessons:[
+{t:"שיעור 1.1: שגרת טיפוח לפני איפור",d:"7 דקות",segs:[
+{time:"0:00-1:30 – למה הכנת העור חשובה",body:"חיוך חם, הציגי פנים נקיות",script:"לפני שמתחילות לאפר – חייבים להכין את העור. דמיינו שאתן צובעות קיר: אם הקיר מלוכלך, צבוע לא אחיד, או סדוק – הצבע החדש ייראה גרוע. אותו דבר עם איפור. עור שלא הוכן כראוי יגרום לבסיס להתפורר, לקמטים להיראות עמוקים יותר, ולאיפור להיעלם תוך שעות. עור מוכן היטב – האיפור נראה חלק, טבעי ומחזיק כל היום.",ai:"A side-by-side comparison of makeup application. LEFT: makeup applied on unprepared skin showing patchiness, creasing, and uneven texture. RIGHT: same makeup applied on properly prepared skin looking smooth, luminous, and flawless. Clean split-screen layout with soft lighting, professional beauty photography, 16:9.",icons:[{d:"טיפת מים",p:"Water droplet with sparkle, hydration icon, transparent background."},{d:"פנים זוהרות",p:"Glowing clean face icon, skincare, golden radiance, transparent background."}]},
+{time:"1:30-3:30 – שלבי הטיפוח",body:"הדגימי כל שלב על הפנים",script:"שלב ראשון – ניקוי. תמיד ניקוי עדין לפני איפור. גם אם שטפת פנים בבוקר – ניקוי קל מסיר שאריות שומן ולכלוך. שלב שני – טונר. טונר מאזן את רמת החומציות של העור ומכין אותו לספוג לחות. שלב שלישי – סרום. סרום ויטמין סי או חומצה היאלורונית נותנים זוהר ולחות עמוקה. שלב רביעי – קרם לחות. בחרי קרם לחות קל שנספג מהר. שלב חמישי – קרם הגנה מהשמש. גם אם את בפנים – קרם הגנה מגן על העור ומונע כתמים.",ai:"A step-by-step skincare routine infographic showing 5 steps in elegant cards. Step 1: Cleanser with foam icon. Step 2: Toner with cotton pad. Step 3: Serum with dropper bottle. Step 4: Moisturizer with cream jar. Step 5: SPF with sun protection icon. Each step numbered in gold with pastel pink backgrounds. Clean professional layout, 16:9.",icons:[{d:"5 שלבים",p:"Five skincare product icons appearing one by one, clean pastel style, transparent background."}]},
+{time:"3:30-5:00 – פריימר – הסוד לאיפור שמחזיק",body:"מרחי פריימר על גב היד",script:"פריימר הוא השלב שרוב הנשים מדלגות עליו – וזו טעות. פריימר יוצר שכבת חציצה בין העור לאיפור. הוא מחליק את המרקם, ממלא נקבוביות, ומונע מהבסיס להיספג לתוך העור. יש כמה סוגים: פריימר ממטיפיינג למי שיש לה עור שמן. פריימר הידרייטינג למי שהעור שלה יבש. פריימר לאמיניטינג למי שרוצה זוהר. מרחי כמות בגודל גרגר חומוס על כל הפנים.",ai:"A close-up beauty shot showing primer application on skin. Three primer textures demonstrated: mattifying with a velvet finish, hydrating with a dewy glow, and illuminating with subtle shimmer. Each labeled clearly. Soft studio lighting, professional makeup photography, macro detail, 16:9.",icons:[{d:"פריימר",p:"Primer bottle with smooth texture effect, transparent background."},{d:"יהלום",p:"Diamond sparkle for luminous skin, transparent background."}]},
+{time:"5:00-6:00 – טעויות נפוצות בהכנת העור",body:"הציגי דוגמאות",script:"טעות ראשונה: להניח איפור על עור יבש בלי לחות. טעות שנייה: להשתמש בקרם עשיר מדי שלא נספג ויוצר שכבה שמנונית. טעות שלישית: לדלג על הגנה מהשמש. טעות רביעית: לא לחכות בין שלב לשלב. תנו דקה לכל מוצר להיספג לפני שממשיכים.",ai:"A visual guide showing four common skincare mistakes. Each mistake illustrated with a red X and the correct approach with a green check. Clean instructional layout, side-by-side comparison format, professional beauty education visual, 16:9.",icons:[{d:"אזהרה",p:"Warning triangle with beauty tip, transparent background."}]},
+{time:"6:00-7:00 – סיכום",body:"חיוך חם",script:"זכרו: עור מוכן היטב הוא חמישים אחוז מהצלחת האיפור. השקיעו את הדקות הנוספות בהכנת העור ותראו הבדל עצום בתוצאה הסופית. השיעור הבא – נתחיל לבנות את הבסיס המושלם.",ai:"A beautiful before and after face split showing unprepared skin vs. beautifully prepped skin ready for foundation. Glowing, smooth, hydrated on the right side. Professional beauty transformation, 16:9.",tip:"כלל זהב: תנו דקה לכל מוצר טיפוח להיספג לפני שמניחים את הבא.",icons:[{d:"כוכב",p:"Gold star with skincare glow, transparent background."}]}
+]},
+{t:"שיעור 1.2: בחירת בסיס איפור מושלם",d:"7 דקות",segs:[
+{time:"0:00-1:30 – סוגי בסיס",body:"הציגי בקבוקונים שונים",script:"בסיס האיפור הוא השלב הכי קריטי. בסיס נכון – הפנים נראות חלקות וטבעיות. בסיס לא מתאים – האיפור נראה כמו מסכה. יש שלושה סוגים עיקריים: בסיס נוזלי – הנפוץ ביותר, מתאים לרוב סוגי העור. בסיס מוס או קרמי – כיסוי גבוה יותר, מתאים לעור מבוגר או עור עם פגמים. בסיס פודרה – כיסוי קל, מתאים לעור שמן.",ai:"Three foundation types displayed elegantly on a marble surface: liquid foundation in a glass bottle, cream foundation in a compact, and powder foundation in a pressed palette. Each labeled with its type and best skin match. Soft lighting, professional product photography, 16:9.",icons:[{d:"בקבוקון",p:"Foundation bottle with color swatch, beauty product icon, transparent background."}]},
+{time:"1:30-3:00 – איך מוצאים את הגוון",body:"הדגימי על קו הלסת",script:"הטעות הנפוצה ביותר – לבדוק בסיס על כף היד. כף היד בגוון אחר מהפנים! המקום הנכון לבדוק הוא קו הלסת. מרחי שלושה גוונים קרובים על קו הלסת – הגוון שנעלם לתוך העור הוא הגוון שלך. בדקי באור טבעי – תאורה מלאכותית משנה את הצבע. עוד טיפ: בקיץ הגוון משתנה. שווה להחזיק שני גוונים ולערבב.",ai:"A close-up beauty tutorial image showing three foundation swatches along the jawline in natural daylight. One swatch blends perfectly while the other two are slightly off. Clear annotation arrows pointing to the matching shade. Professional beauty education photography, 16:9.",icons:[{d:"גוון",p:"Color swatches matching skin tone, jawline test icon, transparent background."}]},
+{time:"3:00-5:00 – טכניקת מריחה מושלמת",body:"הדגימי עם ספוגית",script:"יש שלוש דרכים למרוח בסיס: ספוגית בלנדר – הכי פופולרית. לחלחי את הספוגית, סחטי אותה, וטפטפי בתנועות ביצ'ינג – לעולם לא למשוך או למרוח. מברשת בסיס – מתאימה לכיסוי מלא. מרחי בתנועות עגולות קטנות. אצבעות – כן, גם זה אפשרי! חום הגוף עוזר לבסיס להתמזג עם העור. תמיד התחילו מהמרכז של הפנים – מהאף החוצה. שימו יותר במקומות שצריכים כיסוי ופחות בשאר.",ai:"A three-panel beauty tutorial showing foundation application methods. Panel 1: Damp beauty sponge with bouncing technique. Panel 2: Foundation brush with circular motions. Panel 3: Fingers blending warmth technique. Each with motion arrows and technique labels. Professional step-by-step beauty guide, 16:9.",icons:[{d:"ספוגית",p:"Beauty blender sponge bouncing, makeup tool icon, pink, transparent background."},{d:"מברשת",p:"Foundation brush with swirl motion, beauty tool, transparent background."}]},
+{time:"5:00-6:00 – קונסילר",body:"הדגימי מתחת לעיניים",script:"קונסילר הוא החבר הכי טוב שלך. גוון אחד בהיר מהבסיס – מתחת לעיניים, במשולש הפוך. זה מרים את הפנים ומאיר את האזור. לפגמים וכתמים – קונסילר בגוון הבסיס, טפטפי ישר על הנקודה ובלנדי החוצה. אל תמרחי – טפטפי! זה ההבדל בין כיסוי מושלם לאיפור מרוח.",ai:"A detailed tutorial showing concealer application technique. Triangle shape under eyes highlighted with arrows showing the inverted triangle method. Second view showing spot concealing on blemishes with tapping motion. Before and after comparison. Professional beauty photography, 16:9.",icons:[{d:"משולש",p:"Inverted triangle under-eye concealer shape, beauty technique icon, transparent background."}]},
+{time:"6:00-7:00 – פודרה וקיבוע",body:"הדגימי עם מברשת פודרה",script:"פודרה היא שלב הקיבוע. פודרה שקופה – מושלמת לרוב סוגי העור. טפטפי כמות קטנה על מברשת רכה ולחצי – לא למשוך – על אזורים שמנוניים: מצח, אף, סנטר. טכניקת הבייקינג – לתת לפודרה לשבת חמש דקות מתחת לעיניים ואז לנגב את העודף. זה יוצר גימור חלק שמחזיק שעות.",ai:"A powder application tutorial showing setting powder being pressed onto the T-zone with a fluffy brush. Second panel showing the baking technique under eyes with loose powder. Clean instructional layout, professional beauty photography, 16:9.",tip:"כלל זהב: פחות זה יותר! תמיד אפשר להוסיף עוד, אבל קשה להוריד.",icons:[{d:"פודרה",p:"Powder compact with fluffy brush, setting makeup icon, transparent background."}]}
+]}
+]},
+
+{m:"מודול 2: איפור יומיומי טבעי",icon:"🌸",lessons:[
+{t:"שיעור 2.1: לוק נו-מייקאפ מייקאפ",d:"7 דקות",segs:[
+{time:"0:00-1:30 – הפילוסופיה של פחות זה יותר",body:"פנים טבעיות, חיוך",script:"הלוק הנחשק ביותר בעולם האיפור – לוק שנראה כאילו את לא מאופרת בכלל. זה דורש טכניקה! המטרה: עור חלק וזוהר, גבות מסודרות, ריסים ארוכים, שפתיים רעננות. בלי קווים כבדים, בלי צבעים דרמטיים. הכל עדין, הכל טבעי, והכל מחמיא.",ai:"A beautiful natural beauty portrait of a woman with flawless no-makeup makeup look. Dewy glowing skin, groomed brows, subtle mascara, fresh lips. Soft natural daylight, clean background. The epitome of effortless beauty. Professional beauty photography, 16:9.",icons:[{d:"פרח",p:"Delicate flower bloom, natural beauty icon, soft pink, transparent background."}]},
+{time:"1:30-3:00 – בסיס קל",body:"הדגימי טכניקה",script:"לאיפור יומיומי אנחנו לא צריכות כיסוי מלא. השתמשי בקרם BB או CC – הם נותנים כיסוי קל עם הגנה מהשמש. או דללי את הבסיס הרגיל עם קרם לחות – חצי חצי. מרחי עם אצבעות לגימור הכי טבעי. קונסילר רק איפה שצריך – מתחת לעיניים ועל פגמים.",ai:"A close-up beauty tutorial showing sheer foundation application. BB cream being mixed with moisturizer on the back of the hand, then applied with fingers for a natural dewy finish. Light and airy feel, soft focus photography, 16:9.",icons:[{d:"טיפה",p:"Light foundation droplet, sheer coverage icon, transparent background."}]},
+{time:"3:00-4:30 – גבות טבעיות",body:"הדגימי על הגבות",script:"גבות מסודרות משנות את הפנים. לאיפור יומיומי – ג'ל גבות שקוף או צבעוני. מסרקי את הגבות למעלה, מלאי חורים קטנים בתנועות קלות כמו שערות. לעולם לא קו אחד חד! כל תנועה חייבת להיות קלילה ודמויית שערה. הגבה צריכה להתחיל מעל זווית העין הפנימית, הקשת בשליש החיצוני, והזנב מסתיים באלכסון של כנף האף לזווית העין החיצונית.",ai:"An eyebrow tutorial showing the golden ratio brow mapping. Three key points marked: inner corner start, arch position, tail end. Before and after of natural brow filling with hair-like strokes. Clean instructional layout, 16:9.",icons:[{d:"גבה",p:"Eyebrow with golden ratio lines, brow mapping icon, transparent background."}]},
+{time:"4:30-5:30 – עיניים ולחיים",body:"הדגימי צלליות",script:"צללית אחת ניטרלית – חום בהיר או אפרסק – על כל העפעף. מסקרה שכבה אחת בלבד, על הריסים העליונים. סומק קרם – חייכי ומרחי על התפוחים בתנועות עגולות. סומק קרם נראה טבעי יותר מסומק פודרה ליומיום.",ai:"A natural everyday eye and cheek tutorial. Top: single neutral eyeshadow sweep. Middle: one coat mascara application. Bottom: cream blush on smile apples. Fresh, natural results. Step-by-step beauty guide, 16:9.",icons:[{d:"סומק",p:"Cream blush on cheeks, natural glow icon, peach pink, transparent background."}]},
+{time:"5:30-7:00 – שפתיים וקיבוע",body:"הדגימי שפתון",script:"ליומיום – שפתון לח בגוון טבעי, בלזם צבעוני, או גלוס שקוף. הגוון צריך להיות קרוב לצבע הטבעי של השפתיים שלך, רק קצת יותר. לסיום – תרסיס קיבוע קל או מי תרמל. זה נועל את האיפור ונותן זוהר טבעי. מזל טוב, יש לך איפור יומיומי שנראה כאילו נולדת ככה!",ai:"A lip tutorial showing natural lip color options: tinted balm, MLBB lipstick, clear gloss. Final result of complete no-makeup makeup look with setting spray mist. Fresh and effortless beauty. Professional photography, 16:9.",tip:"הלוק הזה לוקח חמש דקות ברגע שמתרגלים. תתאמני כל בוקר ותראי איך את מתמקצעת.",icons:[{d:"שפתיים",p:"Natural pink lips with gloss shine, transparent background."},{d:"ספריי",p:"Setting spray mist cloud, makeup lock icon, transparent background."}]}
+]},
+{t:"שיעור 2.2: איפור יומיומי לעבודה",d:"7 דקות",segs:[
+{time:"0:00-1:30 – איפור מקצועי למשרד",body:"לבוש עסקי, ביטחון",script:"איפור לעבודה צריך להיות מטופח אבל לא מוגזם. המטרה – להיראות מקצועית, רעננה, ומוכנה ליום עבודה ארוך. ההבדל בין איפור יומיומי רגיל לאיפור עבודה: הכל צריך להחזיק שמונה עד עשר שעות. לכן ההכנה של העור חשובה אפילו יותר.",ai:"A professional woman in an office setting with polished, work-appropriate makeup. Clean, fresh look that reads as put-together without being overdone. Modern office background, confident pose, natural lighting, 16:9.",icons:[{d:"תיק",p:"Professional briefcase with lipstick, work beauty icon, transparent background."}]},
+{time:"1:30-3:00 – בסיס עמיד",body:"הדגימי שכבות",script:"לעבודה נשתמש בבסיס עם גימור סאטן – לא מאט מדי ולא זוהר מדי. בסיס לונג-וור מחזיק יותר. הניחי שכבה דקה ובני כיסוי רק איפה שצריך. קונסילר מתחת לעיניים – חובה. פודרה על אזור ה-T בלבד כדי לא לייבש את שאר הפנים.",ai:"A tutorial showing long-wear foundation application for a full workday. Satin finish result, strategic powder placement on T-zone only. Professional and polished result that lasts. Beauty tutorial layout, 16:9.",icons:[{d:"שעון",p:"Clock showing 10 hours, long-wear makeup icon, transparent background."}]},
+{time:"3:00-5:00 – עיניים מוגדרות בעדינות",body:"הדגימי אייליינר דק",script:"לעבודה – צללית ניטרלית מאט. חום חם בקמט, שמנת על העפעף, בז' כהה בקו הריסים. אייליינר דק – חום או שחור – רק בקו הריסים העליון. לא כנף! כנף שייכת לערב. מסקרה שתיים שלוש שכבות. טיפ מקצועי: חממי את המסקרה בין כפות הידיים לפני השימוש – היא תהיה חלקה יותר.",ai:"A professional eye makeup tutorial for work. Neutral matte shadows in crease and lid, thin eyeliner along upper lash line, well-defined lashes. Before and after comparison showing polished, office-appropriate eye look. Clean instructional layout, 16:9.",icons:[{d:"עין",p:"Eye with subtle liner and neutral shadow, work-appropriate eye icon, transparent background."}]},
+{time:"5:00-6:00 – סומק ושפתיים",body:"מרחי סומק בעדינות",script:"סומק פודרה בגוון רוזי או אפרסק – מתאים לכל גווני העור. לא יותר מדי! שתי נגיעות על כל לחי ובלנדי. שפתון מאט בגוון MLBB – My Lips But Better. זה גוון שנראה כמו השפתיים שלך רק יותר מוגדר. מומלץ: שפתון מאט נוזלי שמחזיק כל היום בלי צורך בתיקונים.",ai:"A professional cheek and lip tutorial. Subtle rosy blush application with two-tap technique. MLBB lip color comparison showing natural lip vs. enhanced MLBB shade. Long-lasting liquid lipstick application. Office beauty essentials, 16:9.",icons:[{d:"שפתון מאט",p:"Matte lipstick in MLBB shade, professional beauty icon, transparent background."}]},
+{time:"6:00-7:00 – ערכת תיקונים למשרד",body:"הציגי תיק איפור קטן",script:"שמרי תיק תיקונים קטן במשרד: נייר סופג לשמנוניות, קונסילר קטן, שפתון, פודרה קומפקטית, ומסקרה מיני. תיקון אחרי הצהריים לוקח שתי דקות ומשדרג את המראה לכל יתרת היום.",ai:"A cute mini makeup bag layout showing office touch-up essentials: blotting papers, mini concealer, lipstick, compact powder, mini mascara. Organized in a small elegant bag on a desk. Professional flat lay, 16:9.",tip:"תמיד שמרי את ערכת התיקונים במגירה – לא רק לתיקונים אלא גם לאירועים מפתיעים אחרי העבודה.",icons:[{d:"תיק מיני",p:"Mini makeup bag with essentials peeking out, organized beauty icon, transparent background."}]}
+]}
+]},
+
+{m:"מודול 3: טכניקות עיניים",icon:"👁️",lessons:[
+{t:"שיעור 3.1: מבנה העין ומיפוי צלליות",d:"8 דקות",segs:[
+{time:"0:00-2:00 – אנטומיה של העין",body:"הציגי תרשים עין",script:"לפני שמתחילות עם צלליות – חייבים להבין את מבנה העין. יש חמישה אזורים: העפעף הנייד – האזור שזז כשעוצמים עיניים. הקמט – הקו שנוצר בין העפעף הנייד לעצם הגבה. עצם הגבה – האזור מתחת לגבה. הזווית הפנימית – פינת העין ליד האף. הזווית החיצונית – פינת העין החיצונית. כל צללית הולכת לאזור ספציפי, וכשמבינים את המפה – הכל נהיה קל.",ai:"A detailed eye anatomy diagram for makeup application. Five zones clearly labeled: mobile lid, crease, brow bone, inner corner, outer corner. Clean illustration with color-coded zones in pastel pink, gold, mint. Professional beauty education infographic, 16:9.",icons:[{d:"מפת עין",p:"Eye diagram with labeled zones, beauty anatomy icon, transparent background."}]},
+{time:"2:00-4:00 – שלוש צלליות בסיסיות",body:"הדגימי כל צבע",script:"כל לוק עיניים נבנה משלוש צלליות. צבע בהיר – על כל העפעף ומתחת לגבה. זה הבסיס שמאיר. צבע ביניים – בקמט. זה יוצר עומק ומבנה. צבע כהה – בזווית החיצונית ולאורך קו הריסים. זה מגדיר את העין. הכלל: בהיר במרכז, כהה בצדדים. תמיד בלנדי את הגבולות בין הצבעים! אין קווים חדים בצלליות.",ai:"A three-shadow eye tutorial showing light, medium, and dark placement on the eye. Step 1: Light shade on lid and brow bone. Step 2: Medium shade in crease. Step 3: Dark shade in outer V and lash line. Blending arrows between each zone. Professional beauty tutorial layout, 16:9.",icons:[{d:"3 צלליות",p:"Three eyeshadow swatches light to dark, gradient icon, transparent background."},{d:"בלנד",p:"Blending brush with soft motion lines, seamless blend icon, transparent background."}]},
+{time:"4:00-6:00 – טכניקות בלנדינג",body:"הדגימי מברשת בלנד",script:"בלנדינג הוא המיומנות הכי חשובה באיפור עיניים. מברשת בלנד צריכה להיות רכה ואוורירית. התנועה – מעגלים קטנים או מגב שמשות, קדימה ואחורה. תמיד התחילי בצבע הביניים ובלנדי לפני שמוסיפות כהה. קחי זמן! בלנדינג טוב לוקח דקה לפחות לכל עין. הטריק: מברשת נקייה. אחרי כל צבע, נגבי את המברשת או השתמשי במברשת נפרדת לבלנד.",ai:"A detailed blending technique demonstration. Close-up of eye showing windshield wiper motion and small circular blending movements. Before: harsh color lines. After: seamless gradient. Brush types shown. Professional beauty technique photography, 16:9.",icons:[{d:"מעגלים",p:"Circular blending motion arrows, soft technique icon, transparent background."}]},
+{time:"6:00-7:00 – אייליינר בסיסי",body:"הדגימי קו דק",script:"אייליינר לאורך קו הריסים העליון. התחילי מהאמצע ומשכי החוצה, ואז חברי מהפינה הפנימית לאמצע. קו דק ככל האפשר. לא חייבים כנף! קו דק לאורך הריסים כבר מגדיר את העין בצורה יפה. אם היד רועדת – נסי ג'ל אייליינר עם מברשת דקה במקום עט.",ai:"A step-by-step eyeliner tutorial. Starting from the middle of the lash line, drawing outward, then connecting from inner corner to middle. Thin line result. Comparison of liner tools: pen, gel with brush, pencil. Professional beauty technique guide, 16:9.",icons:[{d:"אייליינר",p:"Eyeliner pen drawing thin line, precise makeup icon, transparent background."}]},
+{time:"7:00-8:00 – מסקרה כמו מקצוענית",body:"הדגימי מסקרה",script:"מסקרה בזיגזג מהשורש לקצה. תמיד מהשורש! שם הנפח מתחיל. שכבה ראשונה – תנו לה להתייבש עשרים שניות. שכבה שנייה – רק בקצוות. לריסים תחתונים – החזיקי את המברשת אנכית והשתמשי רק בקצה. מומלץ לסלסל ריסים לפני המסקרה – זה פותח את העין בטירוף.",ai:"A mascara application tutorial showing zigzag motion from root to tip. Lash curler before step. Two-coat technique with drying pause. Vertical wand for lower lashes. Before and after eye comparison. Professional beauty guide, 16:9.",tip:"תרגלי על עין אחת בכל פעם. עין שמאל תמיד יותר קשה – תתחילי ממנה.",icons:[{d:"מסקרה",p:"Mascara wand with long lashes, dramatic eye icon, transparent background."}]}
+]}
+]},
+
+{m:"מודול 4: קונטור, סומק והיילייט",icon:"🔥",lessons:[
+{t:"שיעור 4.1: קונטור – פיסול הפנים",d:"8 דקות",segs:[
+{time:"0:00-2:00 – מה זה קונטור",body:"הסבירי עם ידיים",script:"קונטור הוא טכניקה שמשתמשת באור וצל כדי לפסל את הפנים. צל – גורם לאזור להיראות שקוע או צר יותר. אור – גורם לאזור לבלוט ולהיראות מלא יותר. עם קונטור נכון אפשר להצר את האף, להגדיר את עצמות הלחיים, לדקק את הפנים, ולחדד את קו הלסת. וכל זה בלי ניתוח!",ai:"A dramatic before and after contour transformation. LEFT: Natural face without contour. RIGHT: Same face with expert contour showing defined cheekbones, slimmer nose, chiseled jawline. Light and shadow zones clearly mapped. Professional beauty transformation photography, 16:9.",icons:[{d:"פיסול",p:"Face contour map with light and shadow zones, sculpting icon, transparent background."}]},
+{time:"2:00-4:00 – מפת קונטור לפי צורת פנים",body:"הציגי תרשים",script:"כל צורת פנים דורשת קונטור שונה. פנים עגולות – קונטור על הצדדים של המצח, מתחת לעצמות הלחיים, ולאורך קו הלסת. פנים מלבניות – קונטור על המצח ועל הסנטר כדי לרכך. פנים לב – קונטור על המצח ומעט על הסנטר. פנים אובליות – מינימום קונטור, בעיקר מתחת לעצמות הלחיים. הכלל: קונטור איפה שרוצים לצמצם.",ai:"A four-panel face shape contour guide. Each panel shows a different face shape: round, rectangular, heart, oval. Contour placement marked in brown tones, highlight in gold. Clear instructional labels. Professional beauty education infographic, 16:9.",icons:[{d:"4 צורות",p:"Four face shapes with contour map, beauty guide icon, transparent background."}]},
+{time:"4:00-6:00 – טכניקת מריחה",body:"הדגימי מריחה",script:"קונטור קרם – לאיפור מלא. מרחי בקו ובלנדי עם ספוגית לחה. קונטור פודרה – ליומיום. מברשת אלכסונית, נגיעות קלות ובלנדינג כלפי מעלה. את הקו מתחת לעצמות הלחיים מרחי באלכסון מהאוזן לכיוון זווית השפה. אבל לא עד השפה! עצרי באמצע הלחי. הצבע: שניים שלושה גוונים כהים מגוון העור. לעולם לא כתום ולא חום אדמדם.",ai:"A detailed contour application tutorial. Cream contour line drawn and blended with damp sponge. Powder contour with angled brush technique. Correct line angle from ear toward mouth corner, stopping at mid-cheek. Color swatch guide. Professional beauty technique photography, 16:9.",icons:[{d:"מברשת קונטור",p:"Angled contour brush with sculpting motion, professional tool icon, transparent background."}]},
+{time:"6:00-7:00 – סומק",body:"חייכי והדגימי",script:"סומק מחזיר חיים לפנים אחרי הקונטור. מרחי על תפוחי הלחיים – חייכי ומרחי על הבליטה. בלנדי כלפי מעלה לכיוון הרקות. גוון רוזי – לעור בהיר. אפרסק – לעור בינוני. ברונזה עמוק – לעור כהה. הכמות: פחות ממה שחושבים! תמיד אפשר להוסיף.",ai:"A blush application tutorial showing smile technique and upward blending toward temples. Three blush shade recommendations for different skin tones. Before and after showing how blush brings life to contoured face. Professional beauty guide, 16:9.",icons:[{d:"סומק",p:"Blush brush on smiling cheek, rosy glow icon, transparent background."}]},
+{time:"7:00-8:00 – היילייט",body:"הדגימי זוהר",script:"היילייט הוא השלב האחרון – הקסם שגורם לפנים לזהור. מרחי על הנקודות הגבוהות: עצמות לחיים, גשר האף, מעל השפה העליונה, קשת הגבה, ומרכז המצח. ליומיום – היילייט עדין. לערב – אפשר להגזים קצת. זכרי: היילייט בולט באור, אז מרחי רק על אזורים שאת רוצה שישכו תשומת לב.",ai:"A highlight placement guide showing five key points on the face: cheekbone tops, nose bridge, cupids bow, brow arch, center forehead. Glowing result with different highlight intensities for day vs. evening. Professional beauty photography with golden glow, 16:9.",tip:"כלל הזהב של קונטור: קונטור בצל, היילייט באור. תמיד בלנדי עד שלא רואים קווים.",icons:[{d:"זוהר",p:"Sparkle highlight glow, luminous skin icon, golden, transparent background."}]}
+]}
+]},
+
+{m:"מודול 5: שפתיים מושלמות",icon:"💋",lessons:[
+{t:"שיעור 5.1: טכניקות שפתיים",d:"7 דקות",segs:[
+{time:"0:00-1:30 – הכנת השפתיים",body:"הדגימי פילינג שפתיים",script:"שפתיים יפות מתחילות בהכנה. שלב ראשון – פילינג. סוכר עם דבש או מוצר פילינג מוכן – עסי בעדינות בתנועות עגולות. זה מסיר עור יבש ויוצר משטח חלק. שלב שני – בלזם שפתיים. תני לו להיספג דקה. שלב שלישי – אם השפתיים מאוד יבשות, מסכת שפתיים לפני השינה בלילה הקודם עושה פלאים.",ai:"A lip preparation tutorial showing three steps: sugar scrub exfoliation with circular motions, lip balm application, overnight lip mask. Before and after comparison of dry vs. prepped lips. Close-up beauty photography, 16:9.",icons:[{d:"שפתיים",p:"Lips being prepped with scrub and balm, lip care icon, transparent background."}]},
+{time:"1:30-3:00 – עיפרון שפתיים",body:"הדגימי תיחום",script:"עיפרון שפתיים הוא הסוד שרוב הנשים מדלגות עליו. הוא עושה שלושה דברים: מונע מהשפתון לזלוג, מגדיר את צורת השפתיים, ומאריך את חיי השפתון. תיחמי קודם את ה-V שבמרכז השפה העליונה, אחר כך את הפינות, ואז חברי את הקווים. בשפה התחתונה – התחילי מהמרכז ומשכי לצדדים. אפשר לחרוג מילימטר מקו השפתיים הטבעי לאפקט שפתיים מלאות יותר.",ai:"A lip liner application tutorial showing the V-shape start on upper lip, corner connection, then lower lip from center out. Slight overlining technique for fuller appearance. Step-by-step close-up photography, 16:9.",icons:[{d:"עיפרון",p:"Lip liner pencil drawing lip outline, definition icon, transparent background."}]},
+{time:"3:00-4:30 – סוגי שפתונים",body:"הציגי מבחר",script:"שפתון קלאסי – לחות וכיסוי טוב, צריך רענון כל כמה שעות. שפתון מאט – כיסוי גבוה ועמידות מעולה, אבל מייבש. שפתון מאט נוזלי – מחזיק הכי הרבה, מושלם לאירועים ארוכים. גלוס – נותן ברק ונפח אבל לא עמיד. שפתון שקוף צבעוני – ליומיום, נותן רמז של צבע. הכלל: לערב – מאט. ליומיום – שיר או סאטן.",ai:"A lip product comparison guide showing five lipstick types with swatches and characteristics. Classic bullet, matte, liquid matte, gloss, and tinted lip. Each with pros and cons. Professional product photography layout, 16:9.",icons:[{d:"שפתונים",p:"Row of different lipstick types, product variety icon, transparent background."}]},
+{time:"4:30-5:30 – טכניקת מריחה מושלמת",body:"הדגימי שפתון",script:"אחרי התיחום – מלאי את השפתיים מתוך העיפרון. הניחי את השפתון ממרכז השפה החוצה. שכבה ראשונה – טפטפי על נייר. שכבה שנייה – מריחה סופית. זה יוצר צבע עמוק ועמידות כפולה. לשפתון מאט נוזלי – שכבה אחת דקה מספיקה. אל תצמצמי שפתיים אחרי המריחה – זה מוחק את הצבע מהמרכז.",ai:"A lipstick application technique showing center-out application, blot and reapply method. Comparison of one coat vs. blotted double coat. Warning against pressing lips together. Professional beauty tutorial, 16:9.",icons:[{d:"מריחה",p:"Lipstick applying from center outward, technique icon, transparent background."}]},
+{time:"5:30-7:00 – לוקים שונים",body:"הציגי שלושה לוקים",script:"לוק אומברה – תיחום כהה, שפתון בהיר יותר במרכז. יוצר אפקט תלת מימדי. לוק מלא מאט – תיחום ושפתון באותו גוון. דרמטי ומושלם לערב. לוק גלוסי – עיפרון ניוד, גלוס שקוף מעל. רענן ונוצץ. לוק כתם – טפטפי שפתון במרכז השפתיים ובלנדי החוצה עם אצבע. לוק קוריאני שנראה אדיר.",ai:"Four lip look tutorials side by side. Ombre lips, full matte, glossy natural, and Korean gradient lip stain. Each with step-by-step mini guide and final result. Professional beauty lookbook layout, 16:9.",tip:"גוון שפתון אוניברסלי שמתאים לכולן: מאווה רוזי. שווה להשקיע באחד איכותי.",icons:[{d:"4 לוקים",p:"Four different lip looks in squares, lip art variety icon, transparent background."}]}
+]}
+]},
+
+{m:"מודול 6: איפור ערב דרמטי",icon:"🌙",lessons:[
+{t:"שיעור 6.1: סמוקי איי קלאסי",d:"8 דקות",segs:[
+{time:"0:00-1:30 – מה הופך איפור ערב למיוחד",body:"אנרגיה גבוהה",script:"איפור ערב הוא הזמן לשחק, להתנסות, ולהרשות לעצמך להיות דרמטית. מה שלא עובד ביום – עובד מושלם בערב. צלליות כהות, אייליינר כנף, שפתיים אדומות – הכל מותר. התאורה בערב רכה יותר, אז האיפור צריך להיות חזק יותר כדי להיראות. מה שנראה מוגזם באור יום נראה מושלם באור נרות.",ai:"A dramatic evening makeup before and after. Soft daytime look transforming into glamorous smokey eye with defined features. Candlelit atmosphere, elegant setting. Professional beauty transformation, 16:9.",icons:[{d:"ירח",p:"Crescent moon with stars, evening glamour icon, transparent background."}]},
+{time:"1:30-3:30 – בסיס עמיד לערב",body:"הדגימי שכבות",script:"לערב – בסיס בכיסוי מלא. פריימר ממטיפיינג כדי שהאיפור לא יזוז. בסיס נוזלי בכיסוי גבוה – שכבה דקה ובני. קונסילר מלא מתחת לעיניים ועל כל פגם. קונטור קרם לפני הפודרה. היילייט קרם על עצמות הלחיים. פודרה קיבוע על כל הפנים. בייקינג מתחת לעיניים – חמש דקות ולנגב. זה הבסיס של ערב – חלק כמו פורצלן.",ai:"A full coverage evening base tutorial showing layered application: primer, full coverage foundation, concealer, cream contour, cream highlight, setting powder, baking technique. Each step labeled. Flawless porcelain finish result. Professional beauty guide, 16:9.",icons:[{d:"שכבות",p:"Layered foundation building icon, full coverage, transparent background."}]},
+{time:"3:30-6:00 – סמוקי איי שלב אחר שלב",body:"הדגימי על העין",script:"שלב אחד: פריימר עיניים על כל העפעף. שלב שתיים: צללית בינונית חומה בכל הקמט – בלנדי היטב. שלב שלוש: צללית שחורה או כהה מאוד על העפעף הנייד ובזווית החיצונית. שלב ארבע: בלנדי את הגבול בין הכהה לביניים. שלב חמש: צללית בהירה או שימרית מתחת לגבה ובפינה הפנימית. שלב שש: אייליינר עבה לאורך קו הריסים עם כנף. שלב שבע: מסקרה בשלוש שכבות או ריסים מלאכותיים. שלב שמונה: עיפרון בקו המים התחתון ובלנד צללית כהה מתחת.",ai:"An eight-step smokey eye tutorial with numbered close-up photos of each stage. From eye primer through final mascara application. Each step clearly labeled with the product and technique. Dramatic final result. Professional beauty step-by-step, 16:9.",icons:[{d:"סמוקי",p:"Dramatic smokey eye close-up, evening glam icon, transparent background."},{d:"כנף",p:"Winged eyeliner flick, cat eye icon, transparent background."}]},
+{time:"6:00-7:00 – שפתיים לערב",body:"הדגימי אדום",script:"לסמוקי איי – שפתיים ניוד. לעיניים ניטרליות – שפתיים אדומות או בורדו. זה הכלל: עיניים או שפתיים – לא שניהם בו זמנית. שפתיים אדומות קלאסיות: תיחום אדום, שפתון אדום, טפטוף על נייר, שכבה שנייה. לגימור מושלם – ניקוי קווי המתאר עם קונסילר ומברשת דקה.",ai:"A classic red lip application tutorial. Liner, fill, blot, second coat technique. Concealer cleanup around edges. Rule of thumb: dramatic eyes OR dramatic lips, not both. Professional evening beauty guide, 16:9.",icons:[{d:"אדום",p:"Classic red lipstick with clean edges, glamour icon, transparent background."}]},
+{time:"7:00-8:00 – קיבוע לכל הלילה",body:"ספרי קיבוע",script:"לאיפור ערב – קיבוע כפול. ספריי קיבוע לונג-לאסטינג – שתי שכבות. שכבה ראשונה – תני לה להתייבש. שכבה שנייה – נועלת הכל. טיפ מנצח: לפני הספריי, ערבבי טיפה של שמן פנים עם הספריי על היד ולחצי על הפנים. זה נותן זוהר ועמידות של ברזל.",ai:"A setting spray application tutorial showing double-layer technique. Oil mixing tip for extra glow and lasting power. Final glamorous evening look result that lasts all night. Professional beauty finish guide, 16:9.",tip:"למסיבה ארוכה: קחי את הספריי קיבוע איתך. ריענון אחרי שלוש ארבע שעות שומר על האיפור כמו חדש.",icons:[{d:"ספריי",p:"Setting spray mist locking makeup, all-night icon, transparent background."}]}
+]}
+]},
+
+{m:"מודול 7: צבעים והתאמות",icon:"🎨",lessons:[
+{t:"שיעור 7.1: תורת הצבע באיפור",d:"7 דקות",segs:[
+{time:"0:00-2:00 – גלגל הצבעים",body:"הציגי גלגל צבעים",script:"הבנת צבע היא סופר-פאואר באיפור. גלגל הצבעים מחולק לצבעים חמים וקרים. צבעים חמים: אדום, כתום, צהוב, זהב. צבעים קרים: כחול, סגול, ורוד, כסף. צבעים משלימים הם כאלה שנמצאים מול אחד השני בגלגל – הם יוצרים ניגוד דרמטי. צבעים אנלוגיים – שכנים בגלגל – יוצרים הרמוניה עדינה. למה זה חשוב? כי סגול משלים את החום בעיניים חומות, וברונזה מבליט עיניים כחולות.",ai:"A makeup-specific color wheel infographic. Warm and cool sides labeled. Complementary color pairs highlighted with arrows. Examples of eye colors and their complementary eyeshadow shades. Professional beauty education color theory chart, 16:9.",icons:[{d:"גלגל צבעים",p:"Color wheel spinning with makeup swatches, color theory icon, transparent background."}]},
+{time:"2:00-3:30 – התאמת צבעים לצבע עיניים",body:"הציגי דוגמאות",script:"עיניים חומות – הצבע הכי ורסטילי! סגול, חאקי, ברונזה, זהב, כחול כהה – הכל עובד. עיניים ירוקות – אדמדם, סגול, מאווה, אפרסק. הם מבליטים את הירוק. עיניים כחולות – כתום, נחושת, ברונזה, חום חם. הניגוד מדגיש את הכחול. עיניים אפורות – כל דבר! אפור הוא ניטרלי ומשתנה לפי הצבע שליד.",ai:"A four-panel eye color guide. Each panel shows an eye color with its most flattering eyeshadow palette: brown eyes with purple/bronze palette, green eyes with mauve/peach, blue eyes with copper/warm brown, gray eyes with versatile options. Professional beauty color matching guide, 16:9.",icons:[{d:"עיניים",p:"Four eye colors with matching shadow swatches, color match icon, transparent background."}]},
+{time:"3:30-5:00 – התאמה לגוון עור",body:"הציגי גוונים",script:"גוון עור חם – עורקים ירוקים, מתחמם בשמש. צבעים מומלצים: זהב, אפרסק, חום חם, קורל. גוון עור קר – עורקים כחולים סגולים, נשרף בשמש. צבעים מומלצים: ורוד, מאווה, בורדו, כסף. גוון ניטרלי – עורקים ירוקים וכחולים. מזל טוב – הכל מתאים! בדקי: הסתכלי על העורקים בשורש כף היד באור טבעי. ירוקים – חם. כחולים – קר. שניהם – ניטרלי.",ai:"A skin undertone identification guide. Warm, cool, and neutral undertones shown with vein color test, jewelry test (gold vs. silver), and recommended makeup color palettes for each. Clear educational layout, professional beauty guide, 16:9.",icons:[{d:"גוון",p:"Skin tone swatches with undertone labels, warm cool neutral, transparent background."}]},
+{time:"5:00-6:00 – פלטות חובה",body:"הציגי פלטות",script:"פלטת ניטרלים – חובה לכל אישה. חומים, בז', שמנת, שחור מאט. פלטת רוזים – ורוד, מאווה, ברונזה, בורדו. מתאימה לכל אירוע. פלטת צבעונית – סגול, ירוק, כחול, נחושת. לערבים מיוחדים. שלוש פלטות ואת מכוסה לכל מצב.",ai:"Three essential eyeshadow palettes displayed: neutral palette, rose palette, colorful palette. Each shown with example eye looks created from the palette. Professional product photography with swatches, 16:9.",icons:[{d:"פלטות",p:"Three eyeshadow palettes stacked, essential beauty collection icon, transparent background."}]},
+{time:"6:00-7:00 – כללים שאסור לשבור",body:"דברי בביטחון",script:"כלל ראשון: שפתיים דרמטיות – עיניים עדינות, ולהפך. כלל שני: סומק צריך להיות מאותה משפחת צבעים של השפתון. כלל שלישי: לעולם אל תתאימי צללית לצבע העיניים – זה מבטל את הצבע במקום להדגיש. כלל רביעי: בספק – לכי על ניטרלים. הם תמיד עובדים.",ai:"A visual rules guide for makeup color coordination. Four golden rules illustrated with do and dont examples. Rule of balance between eyes and lips, blush-lip harmony, contrasting not matching eye colors, neutral as safe choice. Professional beauty rules infographic, 16:9.",tip:"משימה: זהי את גוון העור שלך ובני פלטת צבעים אישית של חמישה גוונים שמחמיאים לך.",icons:[{d:"כללים",p:"Golden rule book with beauty tips, essential guidelines icon, transparent background."}]}
+]}
+]},
+
+{m:"מודול 8: איפור כלות",icon:"👰",lessons:[
+{t:"שיעור 8.1: איפור כלה – מהייעוץ ועד היום הגדול",d:"10 דקות",segs:[
+{time:"0:00-2:00 – הפילוסופיה של איפור כלות",body:"דברי ברגישות ואהבה",script:"איפור כלה הוא האיפור הכי חשוב שתעשי בחיים. הכלה צריכה להיראות כמו הגרסה הכי יפה של עצמה – לא כמו מישהי אחרת. איפור כלה חייב להחזיק עשר עד שתים עשרה שעות. חייב להיראות מדהים גם בתמונות פלאש. חייב להתאים לסגנון החתונה – בוהו שיק, קלאסי, מודרני, דתי. ומעל הכל – הכלה חייבת להרגיש בנוח ויפה.",ai:"A stunning bridal beauty portrait. Elegant bride with timeless, glowing makeup that photographs beautifully. Soft romantic lighting, veil detail, classic and modern simultaneously. Different bridal style options shown in smaller panels. Professional bridal beauty photography, 16:9.",icons:[{d:"כלה",p:"Bridal veil with sparkle, wedding beauty icon, transparent background."},{d:"טבעת",p:"Diamond ring with wedding sparkle, bridal celebration icon, transparent background."}]},
+{time:"2:00-3:30 – ניסוי לפני החתונה",body:"דברי בביטחון",script:"תמיד תמיד תמיד – ניסוי חודש לפני החתונה. בניסוי: הכלה מביאה תמונות השראה, שמלת החתונה או צבע דומה, ותכשיטים. תצלמי את הניסוי בפלאש – כדי לוודא שהאיפור לא בוהק ולא יוצר צללים. תרשמי כל מוצר שהשתמשת בו – כדי שביום האמיתי תשחזרי בדיוק. הכלה צריכה לצאת מהניסוי ולחיות עם האיפור כמה שעות – לבדוק עמידות.",ai:"A bridal makeup trial checklist and setup. Inspiration photos on a mood board, flash photography test showing good vs. bad flash results, detailed product list being noted. Professional bridal consultation scene, 16:9.",icons:[{d:"ניסוי",p:"Makeup trial checklist with camera flash test, bridal prep icon, transparent background."}]},
+{time:"3:30-5:30 – בסיס כלה",body:"הדגימי טכניקה",script:"בסיס כלה דורש שכבות. פריימר מילוי נקבוביות – חובה. בסיס לונג-וור בכיסוי בינוני עד מלא. בני כיסוי בשכבות דקות – שלוש שכבות דקות עדיפות על שכבה אחת עבה. קונסילר בגוון ואחד בהיר למתחת לעיניים. קונטור קרם עדין – לא דרמטי מדי. היילייט קרם רק על עצמות לחיים ואפס במצח – בגלל הפלאש. פודרה קיבוע על כל הפנים. בייקינג מתחת לעיניים. חשוב: הימנעי ממוצרים עם SPF בגוון – זה יוצר הבזק לבן בתמונות פלאש!",ai:"A bridal base application tutorial showing layered building technique. Flash photography comparison: foundation with SPF showing white cast vs. without SPF showing natural. Cream contour and highlight placement for bride. Professional bridal beauty guide, 16:9.",icons:[{d:"שכבות",p:"Building layers of flawless bridal base, bride foundation icon, transparent background."}]},
+{time:"5:30-7:00 – עיניים ושפתיים לכלה",body:"הדגימי עיניים",script:"עיניים: צלליות שימריות עדינות – שמפניה, רוז גולד, חום חם. הנצנוץ תופס אור ונראה מקסים בתמונות. קו אייליינר דק עם כנף קטנה. מסקרה ווטרפרוף – חובה בגלל דמעות! ריסים מלאכותיים בודדים או רצועה טבעית. שפתיים: גוון ניוד רוזי עמיד. שפתון מאט נוזלי שלא מזיז. ניקוי מתאר עם קונסילר. בלוס מינימלי מעל אם רוצות ברק.",ai:"A bridal eye and lip tutorial. Shimmery champagne and rose gold eye look, thin winged liner, waterproof mascara and individual lashes. Long-lasting rosy nude lips with clean concealer edges. Complete bridal beauty look, 16:9.",icons:[{d:"עיניים כלה",p:"Shimmery bridal eye with subtle wing, elegant bride eye icon, transparent background."}]},
+{time:"7:00-8:30 – קיבוע וערכת חירום",body:"הציגי מוצרים",script:"קיבוע כלה: ספריי קיבוע שתי שכבות. בין השכבות – המתיני דקה. ערכת חירום לכלה: שפתון, פודרה קומפקטית, נייר סופג, ספריי קיבוע מיני, דבק ריסים, קונסילר מיני, מטליות לניקוי, וסיכות שיער. תני את הערכה לשושבינה – היא אחראית על התיקונים.",ai:"A bridal emergency kit layout showing all essential touch-up products in an elegant pouch. Labeled items arranged beautifully. Plus setting spray technique demonstration. Professional bridal preparation guide, 16:9.",icons:[{d:"ערכה",p:"Bridal emergency kit pouch with products, wedding prep icon, transparent background."}]},
+{time:"8:30-10:00 – לוקים לפי סגנון חתונה",body:"הציגי תמונות",script:"חתונה קלאסית: עור חלק, סומק רוזי, עיניים שימריות, שפתיים ניוד רוזי. חתונה בוהו: עור זוהר טבעי, סומק קרם, צלליות אדמה חמות, שפתיים טבעיות. חתונה מודרנית גלאם: עור מט מושלם, סמוקי עדין, שפתיים ניוד חזקות. חתונה חוף: עור ברונזי זוהר, מינימום צלליות, שפתיים קורל. חתונה דתית: איפור צנוע ומכובד – עור חלק, עיניים מוגדרות בעדינות, שפתיים טבעיות, סומק עדין.",ai:"Five bridal style panels: Classic elegant, Boho chic, Modern glam, Beach wedding, Religious traditional. Each showing a different makeup approach matching the wedding style. Professional bridal lookbook, 16:9.",tip:"הטיפ הכי חשוב: ביום החתונה – אל תנסי שום דבר חדש. רק מוצרים שכבר נבדקו בניסוי.",icons:[{d:"5 סגנונות",p:"Five bridal style icons, wedding variety, transparent background."}]}
+]}
+]},
+
+{m:"מודול 9: איפור לעור בוגר",icon:"👑",lessons:[
+{t:"שיעור 9.1: טכניקות מותאמות לעור מבוגר",d:"8 דקות",segs:[
+{time:"0:00-2:00 – מה משתנה בעור עם הגיל",body:"דברי באמפתיה וכבוד",script:"עור מבוגר הוא עור יפה – ויש לו צרכים ייחודיים. מה קורה עם השנים: העור מאבד לחות ואלסטיות. קמטים וקווי הבעה מתעמקים. הגוון יכול להשתנות ולהיות לא אחיד. העפעפיים יורדים מעט. השפתיים נהיות דקות יותר. חשוב: האיפור צריך לעבוד עם השינויים, לא נגדם. אנחנו לא מנסות להיראות צעירות יותר – אנחנו מנסות להיראות הכי מרהיבות שאפשר בכל גיל.",ai:"A beautiful portrait of a mature woman with elegant, age-appropriate makeup. Radiant, confident, and sophisticated. Warm lighting that celebrates rather than hides skin texture. Professional beauty photography that honors mature beauty, 16:9.",icons:[{d:"כתר",p:"Golden crown for mature queen, elegant aging icon, transparent background."},{d:"יהלום",p:"Diamond sparkle for timeless beauty, transparent background."}]},
+{time:"2:00-3:30 – הכנת עור בוגר",body:"הדגימי על היד",script:"הכנה היא קריטית! לחות עשירה – קרם עם חומצה היאלורונית שמנפח את העור מבפנים. סרום עם ויטמין סי – מאיר ומאחד גוון. פריימר ממלא קמטים – מוצר קסם! הוא נכנס לתוך הקווים וממלא אותם, יוצר משטח חלק. תני לכל מוצר להיספג שתי דקות לפחות. עור בוגר צריך יותר זמן ספיגה.",ai:"A mature skincare prep tutorial showing rich moisturizer, vitamin C serum, and pore-filling primer application. Before and after close-up showing how primer fills fine lines. Warm, respectful photography, 16:9.",icons:[{d:"לחות",p:"Rich moisturizer droplet, hydration for mature skin icon, transparent background."}]},
+{time:"3:30-5:00 – בסיס לעור מבוגר",body:"הדגימי בעדינות",script:"הכלל החשוב ביותר: פחות זה יותר! בסיס קל עד בינוני – בסיס כבד נכנס לקמטים ומדגיש אותם. בסיס נוזלי עם גימור סאטן – זוהר עדין שמפזר אור. לעולם לא מאט על עור בוגר – מאט מזקין. מרחי עם ספוגית לחה בטפטופים עדינים. קונסילר רק איפה שצריך – שכבה דקה מאוד מתחת לעיניים. פודרה מינימלית – רק על אזור ה-T. פודרה מתחת לעיניים היא טעות נפוצה – היא מדגישה קווים.",ai:"A mature skin foundation tutorial. Light-medium coverage satin finish foundation applied with damp sponge. Side-by-side comparison: heavy matte foundation settling into wrinkles vs. light satin foundation looking smooth. Powder T-zone only, avoiding under-eye area. Professional beauty guide, 16:9.",icons:[{d:"סאטן",p:"Satin fabric texture representing dewy foundation finish, transparent background."}]},
+{time:"5:00-6:30 – עיניים ושפתיים",body:"הדגימי בעדינות",script:"עיניים: צלליות קרם במקום פודרה – לא מתפוררות ולא נכנסות לקמטים. גוונים חמים ובהירים – שמפניה, אפרסק, חום חם. הימנעי משחור ומגוונים כהים מאוד – הם מקשיחים. אייליינר חום או אפור במקום שחור – מרכך את המבט. מסקרה שכבה אחת – ריסים כבדים מכבידים על עפעף שיורד. שפתיים: תיחום בגוון העור – מונע זליגה לתוך קווים סביב השפה. שפתון לח – מאט מבליט יובש. גלוס קל במרכז השפה – נותן אשליה של שפתיים מלאות.",ai:"A mature eye and lip tutorial. Cream eyeshadow application in warm light tones. Brown liner instead of black. Single mascara coat. Lip liner in skin tone, moisturizing lipstick, center gloss plumping trick. Professional age-appropriate beauty guide, 16:9.",icons:[{d:"צלליות קרם",p:"Cream eyeshadow pot with warm shimmer, mature beauty icon, transparent background."}]},
+{time:"6:30-8:00 – טעויות נפוצות וטיפים",body:"דברי בביטחון",script:"טעויות: פודרה מתחת לעיניים, בסיס כבד מדי, צלליות כהות מאט, אייליינר שחור עבה, שפתון מאט כהה, היילייט נצנצני חזק – הוא מדגיש מרקם. טיפים מנצחים: סומק קרם – מחייה את הפנים ונראה טבעי. היילייט נוזלי עדין – לא גליטר. גבות מלאות – גבות דלילות מזקינות, מלאי בעדינות. תנוחת ראש בתמונות – סנטר קלות קדימה ומטה מרים את קו הלסת. ובעיקר – חייכי. חיוך הוא האיפור הכי יפה שיש.",ai:"A dos and donts guide for mature makeup. Common mistakes on the left with red X. Pro tips on the right with gold check. Including cream blush, subtle highlight, filled brows, and photo posture tip. Professional beauty education layout, 16:9.",tip:"משפט לזכור: איפור לעור בוגר הוא אמנות של אור – תנו אור למקומות הנכונים והעור יזהר.",icons:[{d:"אור",p:"Soft light rays on mature face, illumination beauty icon, transparent background."}]}
+]}
+]},
+
+{m:"מודול 10: בונוס – איפור לפורים!",icon:"🎭",lessons:[
+{t:"שיעור 10.1: איפור תחפושת ואפקטים מיוחדים",d:"8 דקות",segs:[
+{time:"0:00-1:30 – הכללים משתנים!",body:"אנרגיה גבוהה, התלהבות",script:"פורים! היום היחיד בשנה שכל הכללים שלמדנו נזרקים מהחלון. יותר צבע, יותר נצנוצים, יותר דרמה. איפור פורים הוא הזדמנות לשחק, להתנסות, ולהיות יצירתיות בלי שום מגבלה. היום נלמד איך ליצור לוקים שיפילו לכולן את הלסת – בין אם זה תחפושת מלאה או סתם איפור חגיגי מטורף.",ai:"A vibrant Purim celebration scene with colorful, dramatic makeup looks. Glitter, bold colors, creative face art, festive atmosphere with hamantaschen and masks in the background. Joyful and creative energy. Professional festive beauty photography, 16:9.",icons:[{d:"מסכה",p:"Purim mask with glitter and confetti, festive celebration icon, transparent background."},{d:"כוכבים",p:"Colorful stars and sparkles explosion, party icon, transparent background."}]},
+{time:"1:30-3:00 – גליטר ונצנוצים",body:"הדגימי גליטר על היד",script:"גליטר הוא מלך הפורים! כללי בטיחות: רק גליטר קוסמטי – לעולם לא גליטר מלאכה! גליטר מלאכה יכול לפגוע בעיניים. איך להדביק: בסיס דבק גליטר או קונסילר דביק. טפטפי גליטר עם אצבע ולחצי – לא למשוך. מיקומים מנצחים: זוויות חיצוניות של העיניים, עצמות לחיים, מעל הגבות, על השפתיים. גליטר עדין – על כל הפנים כמו אבק כוכבים. גליטר גס – נקודות ממוקדות.",ai:"A glitter application tutorial for Purim. Cosmetic-safe glitter types shown. Application with glue base technique. Placement map on face showing inner corners, cheekbones, above brows, on lips. Fine dust vs. chunky placement guide. Festive and sparkling, 16:9.",icons:[{d:"גליטר",p:"Sparkly glitter explosion, cosmetic glitter icon, transparent background."}]},
+{time:"3:00-5:00 – לוקים קלאסיים לפורים",body:"הציגי תמונות השראה",script:"לוק חתולה: אייליינר כנף מוגזמת, עדשות חתול, אף שחור על קצה האף, שפם מצוייר. לוק פיית יער: צלליות ירוקות וזהובות, נמשים מזויפים, שפתיים ברי, פרחים דבוקים על הפנים. לוק מלכה: סמוקי דרמטי בזהב ובורדו, שפתיים בורדו כהה, קונטור חד, כתר. לוק גלקסיה: צלליות כחולות וסגולות, כוכבים מודבקים, היילייט כסוף, שפתיים שחורות או כחולות. לוק ליצנית: בסיס לבן, לחיים אדומות, שפתיים מוגזמות, דמעה מצוירת.",ai:"Five Purim makeup look panels: Cat look, Forest fairy, Queen, Galaxy, Clown. Each with key technique notes and product suggestions. Creative and fun festive makeup inspiration board, 16:9.",icons:[{d:"חתולה",p:"Cat face makeup with whiskers and ears, Purim costume icon, transparent background."},{d:"פייה",p:"Fairy face with flowers and sparkle, enchanted Purim icon, transparent background."}]},
+{time:"5:00-6:30 – ציור פנים בסיסי",body:"הדגימי ציור",script:"לא צריך להיות אמנית כדי לצייר על הפנים. שלושה כלים: עפרונות איפור צבעוניים, צבעי פנים על בסיס מים, ומברשת דקה. טכניקות פשוטות: כוכבים – שלושה קווים שחוצים זה את זה ונקודות בקצוות. לבבות – שני קשתות שנפגשות. פרחים – עיגול במרכז ועלי כותרת סביב. פרפרים – הדגימו על מצח או זווית עין. תרגלי על גב היד לפני שעולים לפנים.",ai:"A face painting basics tutorial showing simple designs: stars, hearts, flowers, butterflies. Step-by-step drawing guides with makeup pencils and face paint. Practice on hand before face technique. Fun and accessible for beginners, 16:9.",icons:[{d:"כוכב",p:"Hand-drawn star with face paint, simple art icon, transparent background."},{d:"פרפר",p:"Butterfly face paint design, creative Purim icon, transparent background."}]},
+{time:"6:30-7:30 – שפתיים יצירתיות",body:"הדגימי שפתיים",script:"שפתיים אומברה דרמטי – שחור בחוץ, אדום במרכז. שפתיים גליטר – בסיס שפתון, גליטר קוסמטי מעל. שפתיים דגל – צבעי דגל ישראל או כל דגל אחר. שפתיים מפלצתיות – צבע שפתיים ירוק או כחול עם שיניים מצוירות. שפתיים פופ ארט – קווי מתאר שחורים עם נקודות לבנות, כמו קומיקס. הגבול הוא רק הדמיון!",ai:"Five creative lip art designs for Purim: dramatic ombre, glitter lips, flag design, monster green with drawn teeth, pop art comic style. Each with technique steps. Fun creative lip art inspiration board, 16:9.",icons:[{d:"שפתיים צבעוניות",p:"Rainbow creative lips, artistic lip icon, transparent background."}]},
+{time:"7:30-8:00 – הסרת איפור פורים",body:"דברי ברצינות",script:"איפור פורים כבד – ההסרה חשובה במיוחד. שלב ראשון: שמן ניקוי או מסיר איפור על בסיס שמן – ממיס גליטר ואיפור כבד. שלב שני: ניקוי פנים עדין. שלב שלישי: טונר מרגיע. שלב רביעי: מסכת לחות – העור שלך מגיע לה אחרי יום כזה. ובעיקר – תהנו! פורים שמח!",ai:"A gentle makeup removal tutorial for heavy Purim makeup. Oil cleanser dissolving glitter, gentle face wash, soothing toner, recovery sheet mask. Self-care after the party. Warm and caring closing scene with Purim treats, 16:9.",tip:"שמרי על העור! אחרי איפור כבד – יום אחד בלי איפור כלל. תני לעור לנשום ולהתאושש. פורים שמח!",icons:[{d:"ניקוי",p:"Gentle cleansing oil removing glitter, skincare recovery icon, transparent background."},{d:"לב",p:"Heart with Purim celebration, happy Purim closing icon, transparent background."}]}
+]}
+]}
+];
+</script>
+<script>
+/* ============================================================
+   TELEPROMPTER ENGINE - COMPLETELY REWRITTEN
+   ============================================================
+   
+   BUG FIXES:
+   1. Reset now STOPS auto-play first, then clears all marks,
+      scrolls to top, and re-marks the first sentence.
+   2. Sentence tracking uses a dedicated index counter instead
+      of relying solely on getBoundingClientRect, preventing
+      sentence skipping during fast scroll.
+   3. Auto-scroll uses requestAnimationFrame for smooth,
+      consistent movement instead of setInterval.
+   4. Scroll listener is properly attached after every lesson load.
+   5. All state is cleanly reset between lesson loads.
+   ============================================================ */
+
+let curL = null;
+let playing = false;
+let animFrameId = null;
+let spd = 1;
+let fntSz = 26;
+let resetLock = false; // Prevents autoMark during reset
+
+/* ---- Sidebar ---- */
+function buildSB() {
+  var c = document.getElementById('sbC');
+  var h = '';
+  D.forEach(function(m, mi) {
+    h += '<div class="mg"><button class="mb" onclick="togMod(this)"><span>' + m.icon + '</span>' + m.m + '<span class="arr">◀</span></button><div class="ll">';
+    m.lessons.forEach(function(l, li) {
+      h += '<button class="lb" data-m="' + mi + '" data-l="' + li + '" onclick="loadL(' + mi + ',' + li + ')">' + l.t + ' (' + l.d + ')</button>';
+    });
+    h += '</div></div>';
+  });
+  c.innerHTML = h;
+}
+
+function togMod(el) {
+  var l = el.nextElementSibling;
+  var wasOpen = l.classList.contains('show');
+  document.querySelectorAll('.ll').forEach(function(x) { x.classList.remove('show'); });
+  document.querySelectorAll('.mb').forEach(function(x) { x.classList.remove('act'); });
+  if (!wasOpen) {
+    l.classList.add('show');
+    el.classList.add('act');
+  }
+}
+
+function togSB() {
+  var s = document.getElementById('sb');
+  if (window.innerWidth <= 768) {
+    s.classList.toggle('mob');
+  } else {
+    s.classList.toggle('collapsed');
+  }
+}
+
+/* ---- Sentence Splitting ---- */
+function splitSentences(txt) {
+  var results = [];
+  var buf = '';
+  for (var i = 0; i < txt.length; i++) {
+    buf += txt[i];
+    if ((txt[i] === '.' || txt[i] === '!' || txt[i] === '?') &&
+        (i === txt.length - 1 || txt[i + 1] === ' ' || txt[i + 1] === '\n')) {
+      if (buf.trim()) results.push(buf.trim());
+      buf = '';
+    }
+  }
+  if (buf.trim()) results.push(buf.trim());
+  return results;
+}
+
+/* ---- Load Lesson ---- */
+function loadL(mi, li) {
+  // Stop everything first
+  stopPlay();
+  resetLock = true;
+
+  curL = D[mi].lessons[li];
+
+  // Update sidebar
+  document.querySelectorAll('.lb').forEach(function(b) { b.classList.remove('act'); });
+  var btn = document.querySelector('[data-m="' + mi + '"][data-l="' + li + '"]');
+  if (btn) btn.classList.add('act');
+
+  // Update title
+  document.getElementById('ttl').textContent = curL.t;
+
+  // Render content
+  renderScript(curL);
+  renderPr(curL);
+  renderIc(curL);
+
+  // Switch to script tab
+  swTab(0);
+
+  // Close mobile sidebar
+  if (window.innerWidth <= 768) {
+    document.getElementById('sb').classList.remove('mob');
+  }
+
+  // Scroll to top and setup highlighting after render
+  var pnl = document.getElementById('pnl0');
+  pnl.scrollTop = 0;
+
+  setTimeout(function() {
+    resetLock = false;
+    autoMark();
+    attachScrollListener();
+  }, 100);
+}
+
+/* ---- Render Script ---- */
+function renderScript(l) {
+  var a = document.getElementById('tp');
+  var h = '';
+  l.segs.forEach(function(s, i) {
+    h += '<div class="seg" id="seg' + i + '">';
+    h += '<div class="ts-line">⏰ ' + s.time + '</div>';
+    h += '<div class="bc">🎭 ' + s.body + '</div>';
+    if (s.iconcue) h += '<div class="ic-cue">✨ ' + s.iconcue + '</div>';
+    var sents = splitSentences(s.script);
+    h += '<div class="script-text">';
+    sents.forEach(function(sent, si) {
+      h += '<span class="sent" data-idx="' + si + '" onclick="clickSent(this)">' + sent + ' </span>';
+    });
+    h += '</div>';
+    if (s.tip) h += '<div class="tip-bx">⭐ ' + s.tip + '</div>';
+    h += '</div>';
+  });
+  a.innerHTML = h;
+  a.style.fontSize = fntSz + 'px';
+}
+
+function renderPr(l) {
+  var a = document.getElementById('pnl1');
+  var h = '';
+  l.segs.forEach(function(s) {
+    h += '<div class="ai-cd"><div class="lbl">🎨 ' + s.time + '</div><div class="pr" onclick="copyEl(this)">' + s.ai + '</div><div class="ch">לחצי להעתקה</div></div>';
+  });
+  a.innerHTML = h;
+}
+
+function renderIc(l) {
+  var a = document.getElementById('pnl2');
+  var h = '';
+  l.segs.forEach(function(s) {
+    if (s.icons && s.icons.length) {
+      h += '<div style="margin-bottom:6px;color:var(--gd-d);font-weight:700;font-size:.88rem;">' + s.time + '</div>';
+      s.icons.forEach(function(ic) {
+        h += '<div class="ic-cd"><div class="il">✨ ' + ic.d + '</div><div class="ic-pr" onclick="copyEl(this)">' + ic.p + '</div><div class="ch" style="color:var(--pk-d)">לחצי להעתקה</div></div>';
+      });
+    }
+  });
+  if (!h) h = '<div class="welc"><div class="emo">✨</div><div class="wd">אין אייקונים לשיעור זה</div></div>';
+  a.innerHTML = h;
+}
+
+/* ---- Manual Click on Sentence ---- */
+function clickSent(el) {
+  el.classList.toggle('manual-read');
+}
+
+/* ============================================================
+   CORE FIX: autoMark - Sentence Highlighting Engine
+   ============================================================ */
+function autoMark() {
+  if (resetLock) return;
+
+  var pnl = document.getElementById('pnl0');
+  if (!pnl) return;
+
+  var sents = pnl.querySelectorAll('.sent');
+  if (!sents.length) return;
+
+  var pnlRect = pnl.getBoundingClientRect();
+  var readY = pnlRect.top + pnlRect.height * 0.35;
+
+  var currentIdx = -1;
+
+  for (var i = 0; i < sents.length; i++) {
+    var r = sents[i].getBoundingClientRect();
+    var sentCenter = r.top + r.height * 0.5;
+
+    if (sentCenter <= readY) {
+      currentIdx = i;
+    }
+  }
+
+  for (var j = 0; j < sents.length; j++) {
+    var s = sents[j];
+    if (s.classList.contains('manual-read')) continue;
+
+    s.classList.remove('read', 'current');
+
+    if (j < currentIdx) {
+      s.classList.add('read');
+    } else if (j === currentIdx) {
+      s.classList.add('current');
+    }
+  }
+
+  if (currentIdx < 0 && sents.length > 0) {
+    for (var k = 0; k < sents.length; k++) {
+      if (!sents[k].classList.contains('manual-read')) {
+        sents[k].classList.add('current');
+        break;
+      }
+    }
+  }
+
+  updProg();
+}
+
+/* ---- Scroll Listener ---- */
+var scrollListenerAttached = false;
+
+function attachScrollListener() {
+  var pnl = document.getElementById('pnl0');
+  if (!pnl) return;
+
+  if (pnl._scrollHandler) {
+    pnl.removeEventListener('scroll', pnl._scrollHandler);
+  }
+
+  var ticking = false;
+  pnl._scrollHandler = function() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(function() {
+        autoMark();
+        ticking = false;
+      });
+    }
+  };
+
+  pnl.addEventListener('scroll', pnl._scrollHandler, { passive: true });
+  scrollListenerAttached = true;
+}
+
+/* ============================================================
+   CORE FIX: Reset - Now properly stops everything
+   ============================================================ */
+function handleReset() {
+  if (!confirm('לאפס את הסימונים?')) return;
+  // 1. Stop auto-play first
+  stopPlay();
+
+  // 2. Lock autoMark
+  resetLock = true;
+
+  // 3. Clear ALL sentence marks
+  var sents = document.querySelectorAll('.sent');
+  for (var i = 0; i < sents.length; i++) {
+    sents[i].className = 'sent';
+  }
+
+  // 4. Scroll to top
+  var pnl = document.getElementById('pnl0');
+  if (pnl) {
+    pnl.scrollTop = 0;
+  }
+
+  // 5. Reset progress bar
+  document.getElementById('progF').style.width = '0%';
+
+  // 6. Unlock and mark first sentence
+  setTimeout(function() {
+    resetLock = false;
+    var firstSent = document.querySelector('#pnl0 .sent');
+    if (firstSent) {
+      firstSent.classList.add('current');
+    }
+  }, 250);
+}
+
+/* ============================================================
+   CORE FIX: Auto-Play - Uses requestAnimationFrame
+   ============================================================ */
+function togPlay() {
+  if (playing) {
+    stopPlay();
+  } else {
+    startPlay();
+  }
+}
+
+function startPlay() {
+  if (playing) return;
+  playing = true;
+  document.getElementById('pb').textContent = '⏸ עצירה';
+  document.getElementById('pb').classList.add('on');
+
+  var lastTime = performance.now();
+  var accumulated = 0;
+
+  function scrollStep() {
+    if (!playing) return;
+
+    var now = performance.now();
+    var delta = now - lastTime;
+    lastTime = now;
+
+    if (delta > 100) delta = 16;
+
+    var pnl = document.getElementById('pnl0');
+    if (pnl) {
+      accumulated += spd * 0.8 * (delta / 16.67);
+
+      if (accumulated >= 1) {
+        var pixels = Math.floor(accumulated);
+        accumulated -= pixels;
+        pnl.scrollTop += pixels;
+        autoMark();
+      }
+    }
+
+    animFrameId = requestAnimationFrame(scrollStep);
+  }
+
+  animFrameId = requestAnimationFrame(scrollStep);
+}
+
+function stopPlay() {
+  playing = false;
+  if (animFrameId) {
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+  }
+  document.getElementById('pb').textContent = '▶ הפעלה';
+  document.getElementById('pb').classList.remove('on');
+}
+
+/* ---- Speed & Font ---- */
+function updSpd() {
+  spd = +document.getElementById('spd').value;
+  document.getElementById('spdV').textContent = spd % 1 === 0 ? spd : spd.toFixed(1);
+}
+
+function chFnt(d) {
+  fntSz = Math.max(16, Math.min(52, fntSz + d));
+  document.getElementById('fntV').textContent = fntSz;
+  document.getElementById('tp').style.fontSize = fntSz + 'px';
+  setTimeout(autoMark, 50);
+}
+
+/* ---- Progress & Scroll ---- */
+function updProg() {
+  var p = document.getElementById('pnl0');
+  if (!p) return;
+  var max = p.scrollHeight - p.clientHeight;
+  var pct = max > 0 ? (p.scrollTop / max) * 100 : 0;
+  document.getElementById('progF').style.width = Math.min(pct, 100) + '%';
+
+  var scBtn = document.getElementById('scTop');
+  if (p.scrollTop > 300) {
+    scBtn.classList.add('show');
+  } else {
+    scBtn.classList.remove('show');
+  }
+}
+
+function scToTop() {
+  handleReset();
+}
+
+/* ---- Tabs ---- */
+function swTab(n) {
+  stopPlay();
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('on'); });
+  document.querySelectorAll('.pnl').forEach(function(p) { p.classList.remove('on'); });
+  document.querySelectorAll('.tab')[n].classList.add('on');
+  document.getElementById('pnl' + n).classList.add('on');
+}
+
+/* ---- Copy ---- */
+function copyEl(el) {
+  navigator.clipboard.writeText(el.textContent).then(function() {
+    el.classList.add('copied');
+    var h = el.nextElementSibling;
+    if (h) h.textContent = '✓ הועתק!';
+    setTimeout(function() {
+      el.classList.remove('copied');
+      if (h) h.textContent = 'לחצי להעתקה';
+    }, 2000);
+  });
+}
+
+/* ---- Camera ---- */
+var camStream = null, mediaRec = null, recChunks = [], recTimerInt = null, recSec = 0, camOpen = false;
+
+function togCam() {
+  if (camOpen) stopCam();
+  else startCam();
+}
+
+function startCam() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('המצלמה לא זמינה בסביבה הזו. יש לפתוח את הקובץ ישירות בדפדפן.');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: true
+  }).then(function(stream) {
+    camStream = stream;
+    document.getElementById('camVid').srcObject = stream;
+    document.getElementById('camWrap').classList.add('open');
+    document.getElementById('camBtn').classList.add('on');
+    document.getElementById('camBtn').textContent = '📹 מצלמה ●';
+    camOpen = true;
+  }).catch(function(e) {
+    alert('לא ניתן לגשת למצלמה: ' + e.message);
+  });
+}
+
+function stopCam() {
+  if (mediaRec && mediaRec.state === 'recording') stopRec();
+  if (camStream) {
+    camStream.getTracks().forEach(function(t) { t.stop(); });
+    camStream = null;
+  }
+  document.getElementById('camVid').srcObject = null;
+  document.getElementById('camWrap').classList.remove('open');
+  document.getElementById('camBtn').classList.remove('on');
+  document.getElementById('camBtn').textContent = '📹 מצלמה';
+  camOpen = false;
+}
+
+function togRec() {
+  if (mediaRec && mediaRec.state === 'recording') stopRec();
+  else startRec();
+}
+
+function startRec() {
+  if (!camStream) return;
+  recChunks = [];
+  var opts = { mimeType: 'video/webm;codecs=vp9,opus' };
+  if (!MediaRecorder.isTypeSupported(opts.mimeType)) opts.mimeType = 'video/webm';
+  if (!MediaRecorder.isTypeSupported(opts.mimeType)) opts.mimeType = '';
+  mediaRec = new MediaRecorder(camStream, opts);
+  mediaRec.ondataavailable = function(e) { if (e.data.size > 0) recChunks.push(e.data); };
+  mediaRec.onstop = function() {
+    var blob = new Blob(recChunks, { type: mediaRec.mimeType || 'video/webm' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    var now = new Date();
+    var ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + '-' + String(now.getMinutes()).padStart(2, '0');
+    a.download = 'recording_' + ts + '.webm';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  mediaRec.start(1000);
+  recSec = 0;
+  document.getElementById('recBtn').textContent = '⏹ עצור הקלטה';
+  document.getElementById('recBtn').classList.add('recording');
+  document.getElementById('camBtn').classList.add('rec');
+  document.getElementById('camTimer').classList.add('on');
+  updRecTimer();
+  recTimerInt = setInterval(function() { recSec++; updRecTimer(); }, 1000);
+}
+
+function stopRec() {
+  if (mediaRec && mediaRec.state === 'recording') mediaRec.stop();
+  clearInterval(recTimerInt);
+  recTimerInt = null;
+  document.getElementById('recBtn').textContent = '⏺ הקלטה';
+  document.getElementById('recBtn').classList.remove('recording');
+  document.getElementById('camBtn').classList.remove('rec');
+  document.getElementById('camTimer').classList.remove('on');
+}
+
+function updRecTimer() {
+  var m = String(Math.floor(recSec / 60)).padStart(2, '0');
+  var s = String(recSec % 60).padStart(2, '0');
+  document.getElementById('camTimer').textContent = '● ' + m + ':' + s;
+}
+
+/* ---- Keyboard Shortcuts ---- */
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); togPlay(); }
+  if (e.code === 'ArrowUp') { e.preventDefault(); chFnt(2); }
+  if (e.code === 'ArrowDown') { e.preventDefault(); chFnt(-2); }
+  if (e.code === 'ArrowRight') {
+    spd = Math.min(10, Math.round((spd + 0.5) * 10) / 10);
+    document.getElementById('spd').value = spd;
+    updSpd();
+  }
+  if (e.code === 'ArrowLeft') {
+    spd = Math.max(0.1, Math.round((spd - 0.5) * 10) / 10);
+    document.getElementById('spd').value = spd;
+    updSpd();
+  }
+});
+
+/* ---- Initialize ---- */
+buildSB();
+
+function initFirstLesson() {
+  if (D && D[0] && D[0].lessons && D[0].lessons[0]) {
+    loadL(0, 0);
+    return true;
+  }
+  return false;
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(initFirstLesson, 50);
+} else {
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initFirstLesson, 50);
+  });
+}
+
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    if (!curL) initFirstLesson();
+  }, 200);
+});
+</script>
+</body>
+</html>
